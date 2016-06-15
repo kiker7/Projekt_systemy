@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel=stylesheet type=text/css
           href="{{ url_for('static', filename='bootstrap/css/bootstrap.min.css') }}">
+    <link rel=stylesheet type=text/css
+          href="{{ url_for('static', filename='style.css') }}">
     <script type=text/javascript
             src="{{ url_for('static', filename='jquery/jquery.min.js') }}"></script>
     <script type=text/javascript
@@ -12,8 +14,20 @@
     <title>System obsługi prac dyplomowych</title>
 </head>
 <body>
-    <div class="container-fluid">
-{% block body %}{% endblock %}
-    </div>
+<nav class="navbar-fixed-top">
+    <div class="container-fluid header">
+        <div class="header-content">
+            <img id="logo" src="{{ url_for('static', filename='images/logo.png') }}"/>
+            <div class="header-titles">
+                <h4>Politechnika Warszawska</h4>
+                <h4>Wydział elektryczny</h4>
+                <h2>System obsługi prac dyplomowych</h2>
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</nav>
+<div class="container-fluid">
+    {% block body %}{% endblock %}
+</div>
 </body>
 </html>

@@ -61,7 +61,7 @@ def signin_student():
     error = None
     if request.method == 'POST':
         pass
-    return render_template('signin_student.html', error=error)
+    return render_template('student_signin.html', error=error)
 
 
 # strona z logowaniem wykladowcy
@@ -70,17 +70,22 @@ def signin_lecturer():
     error = None
     if request.method == 'POST':
         pass
-    return render_template('signin_lecturer.html', error=error)
+    return render_template('lecturer_signin.html', error=error)
 
 
 # strona wyswietlajaca wszystkich studentow w panelu wykladowcy
 @app.route('/database', methods=['GET'])
 def database():
+<<<<<<< HEAD
     cur = g.db.execute('select student.id_studenta, student.imie, student.nazwisko, student.email, temat_pracy.temat'
                        ' from student inner join temat_pracy '
                        'on student.id_studenta = temat_pracy.id_tematu;')
     users = [dict(id=row[0], name=row[1], surname=row[2], email=row[3], subject=row[4]) for row in cur.fetchall()]
     return render_template('control_panel.html', students=users)
+=======
+    users = []
+    return render_template('lecturer_control.html', users=users)
+>>>>>>> 7c39069965d76fd3d7b554b3824c2abc540e1ad5
 
 
 # strona wyswietlajaca teamty prac dla wykladowcy
@@ -106,37 +111,38 @@ def add_term():
 # profil wykladowcy
 @app.route('/profile_lecturer')
 def profile_lecturer():
-    return render_template('profil_lecturer.html')
+    return render_template('lecturer_profile.html')
 
 
 # profil studenta
 @app.route('/profile_student')
 def profile_student():
-    return render_template('profil_student.html')
+    return render_template('student_profile.html')
 
 
 # wiadomosci wykladowcy
 @app.route('/message_lecturer')
 def message_lecturer():
-    return render_template('message_lecturer.html')
+    return render_template('lecturer_message.html')
 
 
 # wiadomosci studenta
 @app.route('/message_student')
 def message_student():
-    return render_template('message_student.html')
+    return render_template('student_message.html')
 
 
 # postep prac studenta
 @app.route('/work_progress')
 def work_progress():
-    return render_template('work_progress.html')
+    return render_template('student_control.html')
 
 
 # wylogowanie
 @app.route('/signout')
 def signout():
-    return redirect(url_for('login.html'))
+    return redirect(url_for('index'))
+
 
 
 # porownywanie daty
