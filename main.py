@@ -76,9 +76,32 @@ def signin_lecturer():
 # strona wyswietlajaca wszystkich studentow w panelu wykladowcy
 @app.route('/database', methods=['GET'])
 def database():
-    users = []
-    return render_template('control_panel.html', users=users)
+    cur = g.db.execute('select student.id_studenta, student.imie, student.nazwisko, student.email, temat_pracy.temat'
+                       ' from student inner join temat_pracy '
+                       'on student.id_studenta = temat_pracy.id_tematu;')
+    users = [dict(id=row[0], name=row[1], surname=row[2], email=row[3], subject=row[4]) for row in cur.fetchall()]
+    return render_template('control_panel.html', students=users)
 
+
+# strona wyswietlajaca teamty prac dla wykladowcy
+@app.route('/subjects', methods=['GET'])
+def subjects(id):
+    cur = g.db.execute('select temat_pracy.temat from temat_pracy where id_wykladowca = ' + id + ';')
+    my_subjects = [dict(temat=row[0]) for row in cur.fetchall()]
+    cur = g.db.execute('select * from temat_pracy.temat where id_wykladowca != ' + id + ';')
+    all_subjects = [dict(temat=row[0]) for row in cur.fetchall()]
+    return render_template('lecturer_subjects.html', my_subjects=my_subjects, all_subjects=all_subjects)
+
+
+# strona wyswietlajaca terminy
+def terms():
+    cur = g.db.execute('select temat, data, tekst from wiadomosc')
+    terms = [dict(temat=row[0], data=row[2], tekst=row[3]) for row in cur.fetchall()]
+    return render_template('terms.html', terms=terms)
+
+# funkcja dodajaca termin do bazy
+def add_term():
+    render_template('terms.html')
 
 # profil wykladowcy
 @app.route('/profile_lecturer')
@@ -114,6 +137,11 @@ def work_progress():
 @app.route('/signout')
 def signout():
     return redirect(url_for('login.html'))
+
+
+# porownywanie daty
+def compare_date():
+    pass
 
 if __name__ == '__main__':
     app.run(debug=True)

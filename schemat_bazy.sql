@@ -35,6 +35,7 @@ CREATE TABLE wiadomosc(
   tekst TEXT NOT NULL,
   data TEXT NOT NULL,
   temat TEXT NOT NULL,
+  czy_przeczytane INTEGER,
   FOREIGN KEY (id_wykladowca) REFERENCES wykladowca(id_wykladowcy),
   FOREIGN KEY (id_student) REFERENCES student(id_studenta)
 );
