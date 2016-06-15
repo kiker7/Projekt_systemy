@@ -61,7 +61,7 @@ def signin_student():
     error = None
     if request.method == 'POST':
         pass
-    return render_template('signin_student.html', error=error)
+    return render_template('student_signin.html', error=error)
 
 
 # strona z logowaniem wykladowcy
@@ -70,44 +70,44 @@ def signin_lecturer():
     error = None
     if request.method == 'POST':
         pass
-    return render_template('signin_lecturer.html', error=error)
+    return render_template('lecturer_signin.html', error=error)
 
 
 # strona wyswietlajaca wszystkich studentow w panelu wykladowcy
 @app.route('/database', methods=['GET'])
 def database():
     users = []
-    return render_template('control_panel.html', users=users)
+    return render_template('lecturer_control.html', users=users)
 
 
 # profil wykladowcy
 @app.route('/profile_lecturer')
 def profile_lecturer():
-    return render_template('profil_lecturer.html')
+    return render_template('lecturer_profil.html')
 
 
 # profil studenta
 @app.route('/profile_student')
 def profile_student():
-    return render_template('profil_student.html')
+    return render_template('student_profil.html')
 
 
 # wiadomosci wykladowcy
 @app.route('/message_lecturer')
 def message_lecturer():
-    return render_template('message_lecturer.html')
+    return render_template('lecturer_message.html')
 
 
 # wiadomosci studenta
 @app.route('/message_student')
 def message_student():
-    return render_template('message_student.html')
+    return render_template('student_message.html')
 
 
 # postep prac studenta
 @app.route('/work_progress')
 def work_progress():
-    return render_template('work_progress.html')
+    return render_template('studnet_control.html')
 
 
 # wylogowanie

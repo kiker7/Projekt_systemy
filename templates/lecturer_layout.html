@@ -1,11 +1,34 @@
-{% extends "main_layout.html" %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "main_layout.html" %} {% block body %}
+    <nav class="navbar navbar-default navbar-fixed-top top-margin-170">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                        data-target="#navbar-lecturer" aria-expanded="false">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+            </div>
 
-</body>
-</html>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="navbar-lecturer">
+                <ul class="nav navbar-nav">
+                    <li class="active"><a href="#">Baza studentów</a></li>
+                    <li><a href="#">Terminy</a></li>
+                    <li><a href="#">Tematy prac dyplomowych</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li><a href="#">Wiadomości</a></li>
+                    <li><a href="#">Profil</a></li>
+                    <li><a href="#">Wyloguj</a></li>
+                </ul>
+            </div><!-- /.navbar-collapse -->
+        </div><!-- /.container-fluid -->
+    </nav>
+    <div class="container-fluid">
+        {% block main %}
+        {% endblock %}
+    </div>
+{% endblock %}

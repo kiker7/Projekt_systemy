@@ -1,0 +1,55 @@
+/* Main css styling file */
+body {
+    padding-top: 170px;
+}
+
+.header {
+    background: #fff;
+}
+
+.header-content {
+    width: 700px;
+    margin: auto;
+}
+
+.header-content #logo {
+    margin: 10px 0;
+    height: 150px;
+}
+
+.header-content .header-titles {
+    padding: 15px;
+    height: 150px;
+    margin: 10px 0;
+    float: left;
+}
+
+#logo {
+    margin: 10px;
+    float: left;
+}
+
+.col-centered {
+    float: none;
+    margin: 0 auto;
+}
+
+.top-margin-170 {
+    margin-top: 170px;
+}
+
+.top-margin-100 {
+    margin-top: 100px;
+}
+
+.top-margin-50 {
+    margin-top: 50px;
+}
+
+.top-margin-30 {
+    margin-top: 30px;
+}
+
+.top-margin-20 {
+    margin-top: 20px;
+}
