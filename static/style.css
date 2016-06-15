@@ -1,6 +1,6 @@
 /* Main css styling file */
 body {
-    padding-top: 170px;
+    padding-top: 230px;
 }
 
 .header {
@@ -60,7 +60,9 @@ a .btn-primary {
     color: white;
     text-decoration: none;
 }
-a .btn-primary:hover p{
-    text-decoration: none !important;
+
+.table thead tr {
+    font-weight: bold;
+    text-align: center;
 }
 
