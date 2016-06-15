@@ -76,16 +76,12 @@ def signin_lecturer():
 # strona wyswietlajaca wszystkich studentow w panelu wykladowcy
 @app.route('/database', methods=['GET'])
 def database():
-<<<<<<< HEAD
     cur = g.db.execute('select student.id_studenta, student.imie, student.nazwisko, student.email, temat_pracy.temat'
                        ' from student inner join temat_pracy '
                        'on student.id_studenta = temat_pracy.id_tematu;')
     users = [dict(id=row[0], name=row[1], surname=row[2], email=row[3], subject=row[4]) for row in cur.fetchall()]
-    return render_template('control_panel.html', students=users)
-=======
-    users = []
-    return render_template('lecturer_control.html', users=users)
->>>>>>> 7c39069965d76fd3d7b554b3824c2abc540e1ad5
+    return render_template('lecturer_control.html', students=users)
+
 
 
 # strona wyswietlajaca teamty prac dla wykladowcy
