@@ -83,13 +83,13 @@ def database():
 # profil wykladowcy
 @app.route('/profile_lecturer')
 def profile_lecturer():
-    return render_template('lecturer_profil.html')
+    return render_template('lecturer_profile.html')
 
 
 # profil studenta
 @app.route('/profile_student')
 def profile_student():
-    return render_template('student_profil.html')
+    return render_template('student_profile.html')
 
 
 # wiadomosci wykladowcy
