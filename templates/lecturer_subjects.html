@@ -1,3 +1,62 @@
 {% extends "lecturer_layout.html" %} {% block main %}
+    <div class="panel panel-default">
+        <div class="panel-heading text-center">
+            <h3>Moje tematy</h3>
+        </div>
 
+        <table class="table">
+            <thead>
+            <tr>
+                <td colspan="3">Dodaj nowy temat pracy:</td>
+            </tr>
+            <tr class="remove-top-border">
+                <form id="add-subject" action="{{ url_for('subjects') }}">
+                    <td colspan="2" class="remove-top-border">
+                        <input id="subject" type="text"/>
+                    </td>
+                    <td class="remove-top-border">
+                        <button class="btn btn-success btn-block" type="submit">Dodaj temat</button>
+                    </td>
+                </form>
+            </tr>
+            <tr>
+                <td>ID</td>
+                <td>Temat</td>
+                <td>Czy zajęty</td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for my_subject in my_subjects %}
+                <tr>
+                    <td>{{ my_subject.id }}</td>
+                    <td>{{ my_subject.temat }}</td>
+                    <td>{{ my_subject.czy_zajety }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="panel panel-default">
+        <div class="panel-heading text-center"><h3>Wszystkie tematy</h3></div>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <td>ID</td>
+                <td>Temat</td>
+                <td>Czy zajęty</td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for all_subject in all_subjects %}
+                <tr>
+                    <td>{{ all_subject.id }}</td>
+                    <td>{{ all_subject.temat }}</td>
+                    <td>{{ all_subject.czy_zajety }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

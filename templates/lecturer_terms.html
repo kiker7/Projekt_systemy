@@ -1,3 +1,27 @@
 {% extends "lecturer_layout.html" %} {% block main %}
+    <div class="panel panel-default">
+        <div class="panel-heading text-center"><h3>Terminy</h3></div>
 
+        <table class="table">
+            <thead>
+            <tr>
+                <td>Nazwa</td>
+                <td>Stara Data</td>
+                <td>Nowa Data</td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for term in terms %}
+                <tr>
+                    <form>
+                        <td><input type="text" disabled="disabled" value="{{ term.nazwa }}"/></td>
+                        <td width="200px"><input type="text" disabled="disabled" value="{{ term.data }}"/></td>
+                        <td width="200px"><input type="datetime-local"/></td>
+                        <td width="100px"><button type="submit" class="btn btn-default">Zmień</button></td>
+                    </form>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

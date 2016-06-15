@@ -85,24 +85,29 @@ def database():
 
 # strona wyswietlajaca teamty prac dla wykladowcy
 @app.route('/subjects', methods=['GET'])
-def subjects(id):
-    cur = g.db.execute('select temat_pracy.temat from temat_pracy where id_wykladowca = ' + id + ';')
-    my_subjects = [dict(temat=row[0]) for row in cur.fetchall()]
-    cur = g.db.execute('select * from temat_pracy.temat where id_wykladowca != ' + id + ';')
-    all_subjects = [dict(temat=row[0]) for row in cur.fetchall()]
+def subjects():
+    id = "1"
+    cur = g.db.execute(
+        'select temat_pracy.id_tematu, temat_pracy.temat, temat_pracy.czy_zajety from temat_pracy where id_wykladowca = ' + id + ';')
+    my_subjects = [dict(id=row[0], temat=row[1], czy_zajety=row[2]) for row in cur.fetchall()]
+    cur = g.db.execute(
+        'select temat_pracy.id_tematu, temat_pracy.temat, temat_pracy.czy_zajety from temat_pracy where id_wykladowca != ' + id + ';')
+    all_subjects = [dict(id=row[0], temat=row[1], czy_zajety=row[2]) for row in cur.fetchall()]
     return render_template('lecturer_subjects.html', my_subjects=my_subjects, all_subjects=all_subjects)
 
 
 # strona wyswietlajaca terminy
+@app.route('/terms', methods=['GET'])
 def terms():
-    cur = g.db.execute('select temat, data, tekst from wiadomosc')
-    terms = [dict(temat=row[0], data=row[2], tekst=row[3]) for row in cur.fetchall()]
-    return render_template('terms.html', terms=terms)
+    cur = g.db.execute('select nazwa, data from termin')
+    terms = [dict(nazwa=row[0], data=row[1]) for row in cur.fetchall()]
+    return render_template('lecturer_terms.html', terms=terms)
 
 
 # funkcja dodajaca termin do bazy
+@app.route('/add_term', methods=['POST'])
 def add_term():
-    render_template('terms.html')
+    return redirect(url_for('terms'))
 
 
 # profil wykladowcy
@@ -120,7 +125,29 @@ def profile_student():
 # wiadomosci wykladowcy
 @app.route('/message_lecturer')
 def message_lecturer():
+    cur = g.db.execute('select id_wiadomosci, temat, id_student, data'
+                       ' from wiadomosc')
+
+    messages = [dict(id=row[0], temat=row[1], nadawca=row[2], data=row[3]) for row in cur.fetchall()]
+    return render_template('lecturer_message.html', messages=messages)
+
+
+@app.route('/show_message', methods=['POST'])
+def show_message():
+    return render_template('lecturer_show_message.html',
+                           message=dict(temat="Dupa", nadawca="CHuj", data="Wczoraj", tresc="Bylem tam"))
+
+@app.route('/reply')
+def reply():
+    return render_template('lecturer_new_message.html')
+
+@app.route('/send')
+def send():
     return render_template('lecturer_message.html')
+
+@app.route('/new_message')
+def new_message():
+    return render_template('lecturer_new_message.html')
 
 
 # wiadomosci studenta
@@ -141,10 +168,10 @@ def signout():
     return redirect(url_for('index'))
 
 
-
 # porownywanie daty
 def compare_date():
     pass
+
 
 if __name__ == '__main__':
     app.run(debug=True)

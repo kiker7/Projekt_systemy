@@ -1,0 +1,15 @@
+{% extends "lecturer_layout.html" %} {% block main %}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <p>Temat: {{ message.temat }}</p>
+            <p>Nadawca: {{ message.nadawca }}</p>
+            <p>Data: {{ message.data }}</p>
+            <form id="reply" action="reply">
+                <button class="btn btn-success pull-right">Odpowiedz</button>
+            </form>
+        </div>
+        <div class="panel-body">
+            {{ message.tresc }}
+        </div>
+    </div>
+{% endblock %}

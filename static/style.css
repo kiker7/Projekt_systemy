@@ -63,6 +63,35 @@ a .btn-primary {
 
 .table thead tr {
     font-weight: bold;
-    text-align: center;
+}
+
+.remove-top-border {
+    border-top: none !important;
+}
+
+#subject {
+    height: 34px;
+    line-height: 20px;
+    width: 100%;
+}
+
+#new-message .btn {
+    margin-top: -45px;
+}
+
+#reply .btn {
+    margin-top: -60px;
+}
+
+.table input {
+    width: 100%;
+}
+
+.borderless td, .borderless th {
+    border: none !important;
+}
+
+#send-message .btn {
+    margin-top: 15px;
 }
 

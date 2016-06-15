@@ -1,3 +1,35 @@
 {% extends "lecturer_layout.html" %} {% block main %}
+    <div class="panel panel-default">
+        <div class="panel-heading text-center"><h3>Wiadomości</h3>
+            <form id="new-message" action="new_message">
+                <button class="btn btn-success pull-right">Nowa wiadomość</button>
+            </form>
+        </div>
 
+        <table class="table">
+            <thead>
+            <tr>
+                <td>ID</td>
+                <td>Temat</td>
+                <td>Nadawca</td>
+                <td>Data</td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for message in messages %}
+                <tr>
+                    <form action="show_message" method="post">
+                        <td>{{ message.id }}</td>
+                        <td>{{ message.temat }}</td>
+                        <td>{{ message.nadawca }}</td>
+                        <td>{{ message.data }}</td>
+                        <td>
+                            <button class="btn btn-block btn-default">Wyświetl</button>
+                        </td>
+                    </form>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

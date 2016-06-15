@@ -1,3 +1,10 @@
 {% extends "lecturer_layout.html" %} {% block main %}
-
+    <div class="container-fluid">
+        <div class="col-md-4"><img src="{{ url_for('static',filename='images/logo.png') }}"></div>
+        <div class="col-md-8">
+            <h4>Imię: </h4>
+            <h4>Nazwisko: </h4>
+            <h4>Email: </h4>
+        </div>
+    </div>
 {% endblock %}
