@@ -83,7 +83,6 @@ def database():
     return render_template('lecturer_control.html', students=users)
 
 
-
 # strona wyswietlajaca teamty prac dla wykladowcy
 @app.route('/subjects', methods=['GET'])
 def subjects(id):
@@ -100,9 +99,11 @@ def terms():
     terms = [dict(temat=row[0], data=row[2], tekst=row[3]) for row in cur.fetchall()]
     return render_template('terms.html', terms=terms)
 
+
 # funkcja dodajaca termin do bazy
 def add_term():
     render_template('terms.html')
+
 
 # profil wykladowcy
 @app.route('/profile_lecturer')
