@@ -4,6 +4,7 @@ body {
 }
 
 .header {
+    border-bottom: 1px solid #ddd;
     background: #fff;
 }
 
@@ -53,3 +54,13 @@ body {
 .top-margin-20 {
     margin-top: 20px;
 }
+
+a .btn-primary {
+    margin: 10px 0;
+    color: white;
+    text-decoration: none;
+}
+a .btn-primary:hover p{
+    text-decoration: none !important;
+}
+

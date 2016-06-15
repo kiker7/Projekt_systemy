@@ -1,6 +1,10 @@
 {% extends "main_layout.html" %} {% block body %}
     <div class="col-md-4 col-centered top-margin-100">
-        <button type="button" class="btn btn-primary btn-lg btn-block">System dla WYKŁADOWCÓW</button>
-        <button type="button" class="btn btn-primary btn-lg btn-block">System dla STUDENTÓW</button>
+        <a href="{{ url_for('signin_lecturer') }}">
+            <button type="button" class="btn btn-primary btn-lg btn-block">System dla WYKŁADOWCÓW</button>
+        </a>
+        <a href="{{ url_for('signin_student') }}">
+            <button type="button" class="btn btn-primary btn-lg btn-block">System dla STUDENTÓW</button>
+        </a>
     </div>
 {% endblock %}

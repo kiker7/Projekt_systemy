@@ -107,13 +107,13 @@ def message_student():
 # postep prac studenta
 @app.route('/work_progress')
 def work_progress():
-    return render_template('studnet_control.html')
+    return render_template('student_control.html')
 
 
 # wylogowanie
 @app.route('/signout')
 def signout():
-    return redirect(url_for('login.html'))
+    return redirect(url_for('index'))
 
 
 if __name__ == '__main__':

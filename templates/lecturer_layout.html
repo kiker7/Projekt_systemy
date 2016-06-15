@@ -15,14 +15,14 @@
             <!-- Collect the nav links, forms, and other content for toggling -->
             <div class="collapse navbar-collapse" id="navbar-lecturer">
                 <ul class="nav navbar-nav">
-                    <li class="active"><a href="#">Baza studentów</a></li>
+                    <li><a href="{{ url_for('database') }}">Baza studentów</a></li>
                     <li><a href="#">Terminy</a></li>
                     <li><a href="#">Tematy prac dyplomowych</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="#">Wiadomości</a></li>
-                    <li><a href="#">Profil</a></li>
-                    <li><a href="#">Wyloguj</a></li>
+                    <li><a href="{{ url_for('message_lecturer') }}">Wiadomości</a></li>
+                    <li><a href="{{ url_for('profile_lecturer') }}">Profil</a></li>
+                    <li><a href="{{ url_for('signout') }}">Wyloguj</a></li>
                 </ul>
             </div><!-- /.navbar-collapse -->
         </div><!-- /.container-fluid -->
