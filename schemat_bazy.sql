@@ -43,8 +43,7 @@ DROP TABLE IF EXISTS termin;
 CREATE TABLE termin(
   id_terminu INTEGER PRIMARY KEY AUTOINCREMENT ,
   nazwa TEXT NOT NULL,
-  data TEXT NOT NULL,
-  czy_zakonczony INTEGER
+  data TEXT NOT NULL
 );
 
 DROP TABLE IF EXISTS student_etap;
@@ -52,6 +51,7 @@ CREATE TABLE student_etap(
   id_etapu INTEGER PRIMARY KEY AUTOINCREMENT,
   id_student INTEGER,
   id_termin INTEGER,
+  czy_zakonczony INTEGER,
   FOREIGN KEY (id_student) REFERENCES student(id_studenta),
   FOREIGN KEY (id_termin) REFERENCES termin(id_terminu)
 );
