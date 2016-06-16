@@ -1,10 +1,10 @@
-{% extends "lecturer_layout.html" %} {% block main %}
+{% extends "student_layout.html" %} {% block main %}
     <div class="panel panel-default">
         <div class="panel-heading">
             <p>Temat: {{ message.temat }}</p>
             <p>Nadawca: {{ message.email }}</p>
             <p>Data: {{ message.data }} </p>
-            <form id="reply" action="reply_lecturer", method="post">
+            <form id="reply" action="reply_student" method="post">
                 <input type="hidden" name="nadawca" value={{ message.email }}>
                 <button class="btn btn-success pull-right">Odpowiedz</button>
             </form>

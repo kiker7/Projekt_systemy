@@ -13,7 +13,7 @@
             <tbody>
             {% for term in terms %}
                 <tr>
-                    <form>
+                    <form action='change_term'>
                         <td><input type="text" disabled="disabled" value="{{ term.nazwa }}"/></td>
                         <td width="200px"><input type="text" disabled="disabled" value="{{ term.data }}"/></td>
                         <td width="200px"><input type="datetime-local"/></td>

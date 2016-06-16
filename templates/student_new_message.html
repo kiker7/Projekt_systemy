@@ -1,22 +1,21 @@
-{% extends "lecturer_layout.html" %} {% block main %}
-    <form id="send-message" action="send_lecturer">
+{% extends "student_layout.html" %} {% block main %}
+    <form id="send-message" action="send_student" method="post">
         <div class="panel panel-default">
             <div class="panel-heading">
                 <table class="table borderless">
                     <tr>
                         <td class="text-right" width="100px">Temat:</td>
-                        <td><input type="text"/></td>
+                        <td><input name="temat" type="text"/></td>
                         <td rowspan="2" width="100px"><button type="submit" class="btn btn-success">Wyślij</button></td>
                     </tr>
                     <tr>
                         <td class="text-right" width="100px">Adresat:</td>
-                        <td><input type="email"/></td>
+                        <td><input name="email" type="email"/></td>
                     </tr>
                 </table>
             </div>
             <div class="panel-body">
-                <textarea rows="10" style="width: 100%">
-
+                <textarea name="tresc" rows="10" style="width: 100%">
                 </textarea>
             </div>
         </div>

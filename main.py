@@ -95,6 +95,10 @@ def subjects():
     all_subjects = [dict(id=row[0], temat=row[1], czy_zajety=row[2]) for row in cur.fetchall()]
     return render_template('lecturer_subjects.html', my_subjects=my_subjects, all_subjects=all_subjects)
 
+@app.route('/add_subject', methods=['POST'])
+def add_subject():
+    # zapisac teamt w bazie
+    return subjects()
 
 # strona wyswietlajaca terminy
 @app.route('/terms', methods=['GET'])
@@ -125,7 +129,7 @@ def profile_student():
 # wiadomosci wykladowcy
 @app.route('/message_lecturer')
 def message_lecturer():
-    cur = g.db.execute('SELECT id_wiadomosci, temat, id_student, data, tekst FROM wiadomosc;')
+    cur = g.db.execute('SELECT wiadomosc.id_wiadomosci, wiadomosc.temat, student.email, wiadomosc.data, wiadomosc.tekst FROM wiadomosc inner JOIN student on wiadomosc.id_student = student.id_studenta ORDER BY id_wiadomosci DESC;')
     messages = [dict(id=row[0], temat=row[1], nadawca=row[2], data=row[3], tekst=row[4]) for row in cur.fetchall()]
     return render_template('lecturer_message.html', messages=messages)
 
@@ -141,25 +145,69 @@ def show_message():
                                         data=message[0].get('data'), tekst=message[0].get('tekst')))
 
 
-@app.route('/reply')
-def reply():
+@app.route('/show_student_message', methods=['POST'])
+def show_student_message():
+    id_tematu = request.form['id_wiadomosci']
+    cur = g.db.execute(
+        'SELECT wiadomosc.id_wiadomosci, wiadomosc.temat, wiadomosc.data, wiadomosc.tekst, student.email FROM wiadomosc INNER JOIN student WHERE wiadomosc.id_student = student.id_studenta AND wiadomosc.id_wiadomosci = ' + id_tematu + ' ;')
+    message = [dict(id=row[0], temat=row[1], data=row[2], tekst=row[3], email=row[4]) for row in cur.fetchall()]
+    return render_template('student_show_message.html',
+                           message=dict(temat=message[0].get('temat'), email=message[0].get('email'),
+                                        data=message[0].get('data'), tekst=message[0].get('tekst')))
+
+
+@app.route('/change_term')
+def change_term():
+    # zapisc zmieniony termin w bazie
+    return terms()
+
+
+@app.route('/reply_lecturer', methods=['GET', 'POST'])
+def reply_lecturer():
+    nadawca = request.form['nadawca']
+    return render_template('lecturer_reply.html', email=dict(email=nadawca))
+
+
+@app.route('/reply_student', methods=['POST'])
+def reply_student():
+    nadawca = request.form['nadawca']
+    return render_template('student_reply.html', email=dict(email=nadawca))
+
+
+@app.route('/send_lecturer', methods=['POST'])
+def send_lecturer():
+    temat = request.form['temat']
+    tresc = request.form['tresc']
+    email = request.form['email']
+    g.db.execute('insert into wiadomosc(id_wykladowca, id_student, tekst, data, temat, czy_przeczytane) values (?, ?, ?, ?, ?, ?)', [1, 1, tresc, "2016-06-16", temat, 0])
+    g.db.commit()
+    return message_lecturer()
+
+
+@app.route('/send_student', methods=['POST'])
+def send_student():
+    temat = request.form['temat']
+    tresc = request.form['tresc']
+    email = request.form['email']
+    g.db.execute('insert into wiadomosc(id_wykladowca, id_student, tekst, data, temat, czy_przeczytane) values (?, ?, ?, ?, ?, ?)', [1, 1, tresc, "2016-06-16", temat, 0])
+    g.db.commit()
+    return message_student()
+
+
+@app.route('/new_message_lecturer')
+def new_message_lecturer():
     return render_template('lecturer_new_message.html')
 
 
-@app.route('/send')
-def send():
-    return render_template('lecturer_message.html')
-
-
-@app.route('/new_message')
-def new_message():
-    return render_template('lecturer_new_message.html')
+@app.route('/new_message_student')
+def new_message_student():
+    return render_template('student_new_message.html')
 
 
 # wiadomosci studenta
 @app.route('/message_student')
 def message_student():
-    cur = g.db.execute('SELECT id_wiadomosci, temat, id_student, data, tekst FROM wiadomosc')
+    cur = g.db.execute('SELECT wiadomosc.id_wiadomosci, wiadomosc.temat, student.email, wiadomosc.data, wiadomosc.tekst FROM wiadomosc inner join student on wiadomosc.id_student = student.id_studenta ORDER BY id_wiadomosci DESC ')
     messages = [dict(id=row[0], temat=row[1], nadawca=row[2], data=row[3], tekst=row[4]) for row in cur.fetchall()]
     return render_template('student_message.html', messages=messages)
 
