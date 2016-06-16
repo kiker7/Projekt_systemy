@@ -10,9 +10,9 @@
                 <td colspan="3">Dodaj nowy temat pracy:</td>
             </tr>
             <tr class="remove-top-border">
-                <form id="add-subject" action="{{ url_for('subjects') }}">
+                <form id="add-subject" method="post" action='add_subject'>
                     <td colspan="2" class="remove-top-border">
-                        <input id="subject" type="text"/>
+                        <input id="subject" name="temat" type="text"/>
                     </td>
                     <td class="remove-top-border">
                         <button class="btn btn-success btn-block" type="submit">Dodaj temat</button>

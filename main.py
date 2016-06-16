@@ -84,7 +84,7 @@ def database():
 
 
 # strona wyswietlajaca teamty prac dla wykladowcy
-@app.route('/subjects', methods=['GET'])
+@app.route('/subjects', methods=['GET', 'POST'])
 def subjects():
     id = "1"
     cur = g.db.execute(
@@ -95,10 +95,14 @@ def subjects():
     all_subjects = [dict(id=row[0], temat=row[1], czy_zajety=row[2]) for row in cur.fetchall()]
     return render_template('lecturer_subjects.html', my_subjects=my_subjects, all_subjects=all_subjects)
 
+
 @app.route('/add_subject', methods=['POST'])
 def add_subject():
-    # zapisac teamt w bazie
+    temat = request.form['temat']
+    g.db.execute('insert into temat_pracy(id_wykladowca, temat, czy_zajety) values (?, ?, ?)', [1, temat, 0])
+    g.db.commit()
     return subjects()
+
 
 # strona wyswietlajaca terminy
 @app.route('/terms', methods=['GET'])
