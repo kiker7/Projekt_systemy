@@ -125,17 +125,20 @@ def profile_student():
 # wiadomosci wykladowcy
 @app.route('/message_lecturer')
 def message_lecturer():
-    cur = g.db.execute('SELECT id_wiadomosci, temat, id_student, data'
-                       ' FROM wiadomosc')
-
-    messages = [dict(id=row[0], temat=row[1], nadawca=row[2], data=row[3]) for row in cur.fetchall()]
+    cur = g.db.execute('SELECT id_wiadomosci, temat, id_student, data, tekst FROM wiadomosc;')
+    messages = [dict(id=row[0], temat=row[1], nadawca=row[2], data=row[3], tekst=row[4]) for row in cur.fetchall()]
     return render_template('lecturer_message.html', messages=messages)
 
 
 @app.route('/show_message', methods=['POST'])
 def show_message():
+    id_tematu = request.form['id_wiadomosci']
+    cur = g.db.execute(
+        'SELECT wiadomosc.id_wiadomosci, wiadomosc.temat, wiadomosc.data, wiadomosc.tekst, student.email FROM wiadomosc INNER JOIN student WHERE wiadomosc.id_student = student.id_studenta AND wiadomosc.id_wiadomosci = ' + id_tematu + ' ;')
+    message = [dict(id=row[0], temat=row[1], data=row[2], tekst=row[3], email=row[4]) for row in cur.fetchall()]
     return render_template('lecturer_show_message.html',
-                           message=dict(temat="Dupa", nadawca="CHuj", data="Wczoraj", tresc="Bylem tam"))
+                           message=dict(temat=message[0].get('temat'), email=message[0].get('email'),
+                                        data=message[0].get('data'), tekst=message[0].get('tekst')))
 
 
 @app.route('/reply')
@@ -156,7 +159,9 @@ def new_message():
 # wiadomosci studenta
 @app.route('/message_student')
 def message_student():
-    return render_template('student_message.html')
+    cur = g.db.execute('SELECT id_wiadomosci, temat, id_student, data, tekst FROM wiadomosc')
+    messages = [dict(id=row[0], temat=row[1], nadawca=row[2], data=row[3], tekst=row[4]) for row in cur.fetchall()]
+    return render_template('student_message.html', messages=messages)
 
 
 # postep prac studenta

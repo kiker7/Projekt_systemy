@@ -23,7 +23,9 @@
                         <td>{{ message.temat }}</td>
                         <td>{{ message.nadawca }}</td>
                         <td>{{ message.data }}</td>
+                        <td>{{ message.tekst }}</td>
                         <td>
+                            <input name="id_wiadomosci" type="hidden" value={{ message.id }}>
                             <button class="btn btn-block btn-default">Wyświetl</button>
                         </td>
                     </form>
