@@ -76,9 +76,9 @@ def signin_lecturer():
 # strona wyswietlajaca wszystkich studentow w panelu wykladowcy
 @app.route('/database', methods=['GET'])
 def database():
-    cur = g.db.execute('select student.id_studenta, student.imie, student.nazwisko, student.email, temat_pracy.temat'
-                       ' from student inner join temat_pracy '
-                       'on student.id_studenta = temat_pracy.id_tematu;')
+    cur = g.db.execute('SELECT student.id_studenta, student.imie, student.nazwisko, student.email, temat_pracy.temat'
+                       ' FROM student INNER JOIN temat_pracy '
+                       'ON student.id_studenta = temat_pracy.id_tematu;')
     users = [dict(id=row[0], name=row[1], surname=row[2], email=row[3], subject=row[4]) for row in cur.fetchall()]
     return render_template('lecturer_control.html', students=users)
 
@@ -88,10 +88,10 @@ def database():
 def subjects():
     id = "1"
     cur = g.db.execute(
-        'select temat_pracy.id_tematu, temat_pracy.temat, temat_pracy.czy_zajety from temat_pracy where id_wykladowca = ' + id + ';')
+        'SELECT temat_pracy.id_tematu, temat_pracy.temat, temat_pracy.czy_zajety FROM temat_pracy WHERE id_wykladowca = ' + id + ';')
     my_subjects = [dict(id=row[0], temat=row[1], czy_zajety=row[2]) for row in cur.fetchall()]
     cur = g.db.execute(
-        'select temat_pracy.id_tematu, temat_pracy.temat, temat_pracy.czy_zajety from temat_pracy where id_wykladowca != ' + id + ';')
+        'SELECT temat_pracy.id_tematu, temat_pracy.temat, temat_pracy.czy_zajety FROM temat_pracy WHERE id_wykladowca != ' + id + ';')
     all_subjects = [dict(id=row[0], temat=row[1], czy_zajety=row[2]) for row in cur.fetchall()]
     return render_template('lecturer_subjects.html', my_subjects=my_subjects, all_subjects=all_subjects)
 
@@ -99,7 +99,7 @@ def subjects():
 # strona wyswietlajaca terminy
 @app.route('/terms', methods=['GET'])
 def terms():
-    cur = g.db.execute('select nazwa, data from termin')
+    cur = g.db.execute('SELECT nazwa, data FROM termin')
     terms = [dict(nazwa=row[0], data=row[1]) for row in cur.fetchall()]
     return render_template('lecturer_terms.html', terms=terms)
 
@@ -125,8 +125,8 @@ def profile_student():
 # wiadomosci wykladowcy
 @app.route('/message_lecturer')
 def message_lecturer():
-    cur = g.db.execute('select id_wiadomosci, temat, id_student, data'
-                       ' from wiadomosc')
+    cur = g.db.execute('SELECT id_wiadomosci, temat, id_student, data'
+                       ' FROM wiadomosc')
 
     messages = [dict(id=row[0], temat=row[1], nadawca=row[2], data=row[3]) for row in cur.fetchall()]
     return render_template('lecturer_message.html', messages=messages)
@@ -137,13 +137,16 @@ def show_message():
     return render_template('lecturer_show_message.html',
                            message=dict(temat="Dupa", nadawca="CHuj", data="Wczoraj", tresc="Bylem tam"))
 
+
 @app.route('/reply')
 def reply():
     return render_template('lecturer_new_message.html')
 
+
 @app.route('/send')
 def send():
     return render_template('lecturer_message.html')
+
 
 @app.route('/new_message')
 def new_message():
@@ -159,7 +162,30 @@ def message_student():
 # postep prac studenta
 @app.route('/work_progress')
 def work_progress():
-    return render_template('student_control.html')
+    cur = g.db.execute('SELECT count(*) FROM student_etap WHERE id_student = 1 AND czy_zakonczony = 1;')
+    closest_term = [dict(number=row[0] + 1) for row in cur.fetchall()]
+    cur = g.db.execute(
+        'SELECT termin.id_terminu, termin.nazwa, termin.data FROM termin INNER JOIN student_etap ON termin.id_terminu = student_etap.id_termin WHERE student_etap.czy_zakonczony = 0 AND termin.id_terminu = ' + str(
+            closest_term[0].get('number')) + ' AND student_etap.id_student = 1  ;')
+    closest_term_name = [dict(id=row[0], nazwa=row[1], data=row[2]) for row in cur.fetchall()]
+    cur = g.db.execute(
+        'SELECT termin.id_terminu, termin.nazwa, termin.data FROM termin INNER JOIN student_etap ON termin.id_terminu = student_etap.id_termin WHERE student_etap.czy_zakonczony = 0 AND student_etap.id_student = 1;')
+    next_terms = [dict(id=row[0], nazwa=row[1], data=row[2]) for row in cur.fetchall()]
+    cur = g.db.execute(
+        'SELECT termin.id_terminu, termin.nazwa, termin.data FROM termin INNER JOIN student_etap ON termin.id_terminu = student_etap.id_termin WHERE student_etap.czy_zakonczony = 1 AND student_etap.id_student = 1;')
+    done_terms = [dict(id=row[0], nazwa=row[1], data=row[2]) for row in cur.fetchall()]
+    return render_template('student_control.html', closest_term_name=closest_term_name, next_terms=next_terms,
+                           done_terms=done_terms)
+
+
+# tematy prac dyplomowych
+@app.route('/student_subjects')
+def student_subjects():
+    cur = g.db.execute(
+        'SELECT temat_pracy.id_tematu, temat_pracy.temat, temat_pracy.czy_zajety, wykladowca.imie, wykladowca.nazwisko FROM temat_pracy INNER JOIN wykladowca ON temat_pracy.id_wykladowca=wykladowca.id_wykladowcy;')
+    subjects = [dict(id=row[0], temat=row[1], czy_zajety=row[2], imie=row[3], nazwisko=row[4]) for row in
+                cur.fetchall()]
+    return render_template('student_subjects.html', subjects=subjects)
 
 
 # wylogowanie

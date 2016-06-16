@@ -1,0 +1,28 @@
+{% extends "student_layout.html" %} {% block main %}
+    <div class="panel panel-default">
+        <div class="panel-heading text-center"><h3>Wszystkie tematy prac dyplomowych</h3></div>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <td>ID</td>
+                <td>Temat</td>
+                <td>Wykładowca</td>
+                <td></td>
+                <td>Czy zajęty</td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for subjects in subjects %}
+                <tr>
+                    <td>{{ subjects.id }}</td>
+                    <td>{{ subjects.temat }}</td>
+                    <td>{{ subjects.imie }}</td>
+                    <td>{{ subjects.nazwisko }}</td>
+                    <td>{{ subjects.czy_zajety }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

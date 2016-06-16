@@ -1,10 +1,67 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "student_layout.html" %} {% block main %}
+    <div class="panel panel-default">
+        <div class="panel-heading text-center"><h3>Najbliższy termin</h3></div>
+        <table class="table">
+            <thead>
+            <tr>
+                <td>ID</td>
+                <td>Nazwa</td>
+                <td>Data</td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for closest_term_name in closest_term_name %}
+                <tr>
+                    <td>{{ closest_term_name.id }}</td>
+                    <td>{{ closest_term_name.nazwa }}</td>
+                    <td>{{ closest_term_name.data }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+        <div class="panel panel-default">
+        <div class="panel-heading text-center"><h3>Następne terminy</h3></div>
 
-</body>
-</html>
+        <table class="table">
+            <thead>
+            <tr>
+                <td>ID</td>
+                <td>Nazwa</td>
+                <td>Data</td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for next_terms in next_terms %}
+                <tr>
+                    <td>{{ next_terms.id }}</td>
+                    <td>{{ next_terms.nazwa }}</td>
+                    <td>{{ next_terms.data }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+        <div class="panel panel-default">
+        <div class="panel-heading text-center"><h3>Zakończone</h3></div>
+
+        <table class="table">
+            <thead>
+            <tr>
+                <td>ID</td>
+                <td>Nazwa</td>
+                <td>Data</td>
+            </tr>
+            </thead>
+            <tbody>
+            {% for done_terms in done_terms %}
+                <tr>
+                    <td>{{ done_terms.id }}</td>
+                    <td>{{ done_terms.nazwa }}</td>
+                    <td>{{ done_terms.temat }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
