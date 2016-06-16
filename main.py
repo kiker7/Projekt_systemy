@@ -60,8 +60,19 @@ def index():
 def signin_student():
     error = None
     if request.method == 'POST':
-        pass
-    return render_template('student_signin.html', error=error)
+        email = request.form['email']
+        password = request.form['password']
+        cur = g.db.execute('SELECT email, haslo, id_studenta FROM student')
+        dane = [dict(email=row[0], password=row[1], id=row[2]) for row in cur.fetchall()]
+        for i in dane:
+            if i.get('email') == email and i.get('password') == password:
+                session['logged_in'] = True
+                session['id'] = i.get('id')
+                return render_template('student_profile.html')
+            else:
+                error = 'Bledne dane logowania'
+        return render_template('student_signin.html', error=error)
+    return render_template('student_signin.html')
 
 
 # strona z logowaniem wykladowcy
@@ -69,8 +80,19 @@ def signin_student():
 def signin_lecturer():
     error = None
     if request.method == 'POST':
-        pass
-    return render_template('lecturer_signin.html', error=error)
+        email = request.form['email']
+        password = request.form['password']
+        cur = g.db.execute('SELECT email, haslo, id_wykladowcy FROM wykladowca')
+        dane = [dict(email=row[0], password=row[1], id=row[2]) for row in cur.fetchall()]
+        for i in dane:
+            if i.get('email') == email and i.get('password') == password:
+                session['logged_in'] = True
+                session['id'] = i.get('id')
+                return render_template('lecturer_profile.html')
+            else:
+                error = 'Bledne dane logowania'
+        return render_template('lecturer_signin.html', error=error)
+    return render_template('lecturer_signin.html')
 
 
 # strona wyswietlajaca wszystkich studentow w panelu wykladowcy
@@ -99,7 +121,7 @@ def subjects():
 @app.route('/add_subject', methods=['POST'])
 def add_subject():
     temat = request.form['temat']
-    g.db.execute('insert into temat_pracy(id_wykladowca, temat, czy_zajety) values (?, ?, ?)', [1, temat, 0])
+    g.db.execute('INSERT INTO temat_pracy(id_wykladowca, temat, czy_zajety) VALUES (?, ?, ?)', [1, temat, 0])
     g.db.commit()
     return subjects()
 
@@ -133,7 +155,8 @@ def profile_student():
 # wiadomosci wykladowcy
 @app.route('/message_lecturer')
 def message_lecturer():
-    cur = g.db.execute('SELECT wiadomosc.id_wiadomosci, wiadomosc.temat, student.email, wiadomosc.data, wiadomosc.tekst FROM wiadomosc inner JOIN student on wiadomosc.id_student = student.id_studenta ORDER BY id_wiadomosci DESC;')
+    cur = g.db.execute(
+        'SELECT wiadomosc.id_wiadomosci, wiadomosc.temat, student.email, wiadomosc.data, wiadomosc.tekst FROM wiadomosc INNER JOIN student ON wiadomosc.id_student = student.id_studenta ORDER BY id_wiadomosci DESC;')
     messages = [dict(id=row[0], temat=row[1], nadawca=row[2], data=row[3], tekst=row[4]) for row in cur.fetchall()]
     return render_template('lecturer_message.html', messages=messages)
 
@@ -183,7 +206,9 @@ def send_lecturer():
     temat = request.form['temat']
     tresc = request.form['tresc']
     email = request.form['email']
-    g.db.execute('insert into wiadomosc(id_wykladowca, id_student, tekst, data, temat, czy_przeczytane) values (?, ?, ?, ?, ?, ?)', [1, 1, tresc, "2016-06-16", temat, 0])
+    g.db.execute(
+        'INSERT INTO wiadomosc(id_wykladowca, id_student, tekst, data, temat, czy_przeczytane) VALUES (?, ?, ?, ?, ?, ?)',
+        [1, 1, tresc, "2016-06-16", temat, 0])
     g.db.commit()
     return message_lecturer()
 
@@ -193,7 +218,9 @@ def send_student():
     temat = request.form['temat']
     tresc = request.form['tresc']
     email = request.form['email']
-    g.db.execute('insert into wiadomosc(id_wykladowca, id_student, tekst, data, temat, czy_przeczytane) values (?, ?, ?, ?, ?, ?)', [1, 1, tresc, "2016-06-16", temat, 0])
+    g.db.execute(
+        'INSERT INTO wiadomosc(id_wykladowca, id_student, tekst, data, temat, czy_przeczytane) VALUES (?, ?, ?, ?, ?, ?)',
+        [1, 1, tresc, "2016-06-16", temat, 0])
     g.db.commit()
     return message_student()
 
@@ -211,7 +238,8 @@ def new_message_student():
 # wiadomosci studenta
 @app.route('/message_student')
 def message_student():
-    cur = g.db.execute('SELECT wiadomosc.id_wiadomosci, wiadomosc.temat, student.email, wiadomosc.data, wiadomosc.tekst FROM wiadomosc inner join student on wiadomosc.id_student = student.id_studenta ORDER BY id_wiadomosci DESC ')
+    cur = g.db.execute(
+        'SELECT wiadomosc.id_wiadomosci, wiadomosc.temat, student.email, wiadomosc.data, wiadomosc.tekst FROM wiadomosc INNER JOIN student ON wiadomosc.id_student = student.id_studenta ORDER BY id_wiadomosci DESC ')
     messages = [dict(id=row[0], temat=row[1], nadawca=row[2], data=row[3], tekst=row[4]) for row in cur.fetchall()]
     return render_template('student_message.html', messages=messages)
 
@@ -248,6 +276,7 @@ def student_subjects():
 # wylogowanie
 @app.route('/signout')
 def signout():
+    session.pop('logged_in', None)
     return redirect(url_for('index'))
 
 
