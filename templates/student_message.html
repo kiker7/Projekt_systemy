@@ -13,6 +13,7 @@
                 <td>Temat</td>
                 <td>Nadawca</td>
                 <td>Data</td>
+                <td>Wyświetlona</td>
             </tr>
             </thead>
             <tbody>
@@ -23,7 +24,7 @@
                         <td >{{ message.temat }}</td>
                         <td >{{ message.nadawca }}</td>
                         <td >{{ message.data }}</td>
-                        <td ></td>
+                        <td >{{ message.przeczytane }}</td>
                         <td>
                             <input name="id_wiadomosci" type="hidden" value={{ message.id }}>
                             <button class="btn btn-block btn-default">Wyświetl</button>

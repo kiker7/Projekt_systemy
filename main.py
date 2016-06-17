@@ -14,18 +14,20 @@ SECRET_KEY = 'development key'
 SERVER_MAIL = 'rraf@spoko.pl'
 SERVER_PASS = 'Mahdi248'
 
-
 app = Flask(__name__)
 app.config.from_object(__name__)
 
+
 @app.context_processor
 def message_count_lecturer():
-    cur = g.db.execute('select count(*) from wiadomosc where czy_przeczytane = 0 and id_wykladowca = ?', [session['id']])
+    cur = g.db.execute('SELECT count(*) FROM wiadomosc WHERE czy_przeczytane = 0 AND id_wykladowca = ?',
+                       [session['id']])
     return dict(count=cur.fetchall()[0])
+
 
 @app.context_processor
 def message_count_student():
-    cur = g.db.execute('select count(*) from wiadomosc where czy_przeczytane = 0 and id_student = ?', [session['id']])
+    cur = g.db.execute('SELECT count(*) FROM wiadomosc WHERE czy_przeczytane = 0 AND id_student = ?', [session['id']])
     return dict(count_student=cur.fetchall()[0])
 
 
@@ -48,8 +50,6 @@ def send_mail(msg, email_to):
     server.login(email_from, email_pass)
     server.sendmail(email_from, email_to, msg)
     server.quit()
-
-
 
 
 @app.before_request
@@ -174,17 +174,12 @@ def profile_student():
     return render_template('student_profile.html', dane=dane)
 
 
-def message_count():
-    cur = g.db.execute('select count(*) from wiadomosc where czy_przeczytane = 0')
-    return cur.fetchall()[0]
-
-
 # wiadomosci wykladowcy
 @app.route('/message_lecturer')
 def message_lecturer():
     cur = g.db.execute(
-        'SELECT wiadomosc.id_wiadomosci, wiadomosc.temat, student.email, wiadomosc.data, wiadomosc.tekst FROM wiadomosc INNER JOIN student ON wiadomosc.id_student = student.id_studenta ORDER BY id_wiadomosci DESC;')
-    messages = [dict(id=row[0], temat=row[1], nadawca=row[2], data=row[3], tekst=row[4]) for row in cur.fetchall()]
+        'SELECT wiadomosc.id_wiadomosci, wiadomosc.temat, student.email, wiadomosc.data, wiadomosc.tekst, wiadomosc.czy_przeczytane FROM wiadomosc INNER JOIN student ON wiadomosc.id_student = student.id_studenta ORDER BY id_wiadomosci DESC;')
+    messages = [dict(id=row[0], temat=row[1], nadawca=row[2], data=row[3], tekst=row[4], przeczytane=row[5]) for row in cur.fetchall()]
     return render_template('lecturer_message.html', messages=messages)
 
 
@@ -192,22 +187,26 @@ def message_lecturer():
 def show_message():
     id_tematu = request.form['id_wiadomosci']
     cur = g.db.execute(
-        'SELECT wiadomosc.id_wiadomosci, wiadomosc.temat, wiadomosc.data, wiadomosc.tekst, student.email FROM wiadomosc INNER JOIN student WHERE wiadomosc.id_student = student.id_studenta AND wiadomosc.id_wiadomosci = ' + id_tematu + ' ;')
-    message = [dict(id=row[0], temat=row[1], data=row[2], tekst=row[3], email=row[4]) for row in cur.fetchall()]
+        'SELECT wiadomosc.id_wiadomosci, wiadomosc.temat, wiadomosc.data, wiadomosc.tekst, student.email, wiadomosc.czy_przeczytane FROM wiadomosc INNER JOIN student WHERE wiadomosc.id_student = student.id_studenta AND wiadomosc.id_wiadomosci = ' + id_tematu + ' ;')
+    g.db.execute('UPDATE wiadomosc SET czy_przeczytane = ? WHERE id_wiadomosci = ?', [1, id_tematu])
+    g.db.commit()
+    message = [dict(id=row[0], temat=row[1], data=row[2], tekst=row[3], email=row[4], przeczytane=row[5]) for row in cur.fetchall()]
     return render_template('lecturer_show_message.html',
                            message=dict(temat=message[0].get('temat'), email=message[0].get('email'),
-                                        data=message[0].get('data'), tekst=message[0].get('tekst')))
+                                        data=message[0].get('data'), tekst=message[0].get('tekst'), przeczytane=message[0].get('przeczytane')))
 
 
 @app.route('/show_student_message', methods=['POST'])
 def show_student_message():
     id_tematu = request.form['id_wiadomosci']
     cur = g.db.execute(
-        'SELECT wiadomosc.id_wiadomosci, wiadomosc.temat, wiadomosc.data, wiadomosc.tekst, student.email FROM wiadomosc INNER JOIN student WHERE wiadomosc.id_student = student.id_studenta AND wiadomosc.id_wiadomosci = ' + id_tematu + ' ;')
-    message = [dict(id=row[0], temat=row[1], data=row[2], tekst=row[3], email=row[4]) for row in cur.fetchall()]
+        'SELECT wiadomosc.id_wiadomosci, wiadomosc.temat, wiadomosc.data, wiadomosc.tekst, student.email, wiadomosc.czy_przeczytane FROM wiadomosc INNER JOIN student WHERE wiadomosc.id_student = student.id_studenta AND wiadomosc.id_wiadomosci = ' + id_tematu + ' ;')
+    g.db.execute('UPDATE wiadomosc SET czy_przeczytane = ? WHERE id_wiadomosci = ?', [1, id_tematu])
+    g.db.commit()
+    message = [dict(id=row[0], temat=row[1], data=row[2], tekst=row[3], email=row[4], przeczytane=row[5]) for row in cur.fetchall()]
     return render_template('student_show_message.html',
                            message=dict(temat=message[0].get('temat'), email=message[0].get('email'),
-                                        data=message[0].get('data'), tekst=message[0].get('tekst')))
+                                        data=message[0].get('data'), tekst=message[0].get('tekst'), przeczytane=message[0].get('przeczytane')))
 
 
 @app.route('/change_term', methods=['POST', "GET"])
@@ -289,8 +288,8 @@ def new_message_student():
 @app.route('/message_student')
 def message_student():
     cur = g.db.execute(
-        'SELECT wiadomosc.id_wiadomosci, wiadomosc.temat, student.email, wiadomosc.data, wiadomosc.tekst FROM wiadomosc INNER JOIN student ON wiadomosc.id_student = student.id_studenta ORDER BY id_wiadomosci DESC ')
-    messages = [dict(id=row[0], temat=row[1], nadawca=row[2], data=row[3], tekst=row[4]) for row in cur.fetchall()]
+        'SELECT wiadomosc.id_wiadomosci, wiadomosc.temat, student.email, wiadomosc.data, wiadomosc.tekst, wiadomosc.czy_przeczytane FROM wiadomosc INNER JOIN student ON wiadomosc.id_student = student.id_studenta ORDER BY id_wiadomosci DESC ')
+    messages = [dict(id=row[0], temat=row[1], nadawca=row[2], data=row[3], tekst=row[4], przeczytane=row[5]) for row in cur.fetchall()]
     return render_template('student_message.html', messages=messages)
 
 
