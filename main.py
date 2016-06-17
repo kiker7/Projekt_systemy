@@ -2,6 +2,7 @@ import sqlite3
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
 from contextlib import closing
 from time import gmtime, strftime
+from celery import Celery
 import os, smtplib
 
 # Konfiguracja
@@ -16,6 +17,11 @@ SERVER_PASS = 'Mahdi248'
 
 app = Flask(__name__)
 app.config.from_object(__name__)
+app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
+app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
+
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
 
 
 @app.context_processor
@@ -33,6 +39,10 @@ def message_count_student():
     return dict(count_student=cur.fetchall()[0])
 
 
+@celery.tasks
+def send_notification():
+    while(True):
+        print 'background task'
 
 def connect_db():
     return sqlite3.connect(app.config['DATABASE'])
