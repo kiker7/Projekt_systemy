@@ -24,13 +24,13 @@ insert into wykladowca (imie, nazwisko, email, haslo) values ('Tomasz', 'Grosick
 insert into wykladowca (imie, nazwisko, email, haslo) values ('Konrad', 'Szczęsny', 'szczesnyk@op.pl', '1234');
 
 /* tematy prac */
-insert into temat_pracy (id_wykladowca, temat, czy_zajety) values (1, 'System obsługi redakcji studenckiego czasopisma internetowego', 'NIE');
-insert into temat_pracy (id_wykladowca, temat, czy_zajety) values (2, 'Projekt i implementacja modułu statystyk w systemie eProto', 'NIE');
-insert into temat_pracy (id_wykladowca, temat, czy_zajety) values (3, 'Repozytorium dokumentów dla redakcji czasopisma naukowego', 'NIE');
-insert into temat_pracy (id_wykladowca, temat, czy_zajety) values (4, 'System wizualizacji i analizy reguł decyzyjnych do zastosowań medycznych', 'NIE');
-insert into temat_pracy (id_wykladowca, temat, czy_zajety) values (5, 'Symulacja i wizualizacja ekosystemu', 'NIE');
-insert into temat_pracy (id_wykladowca, temat, czy_zajety) values (6, 'Uczenie maszynowe z milionami klas (Jak poprawnie wybrać kilka z miliona?)', 'NIE');
-insert into temat_pracy (id_wykladowca, temat, czy_zajety) values (7, 'Wykorzystanie środowiska webowego do rozproszonych obliczeń wielkiej skali', 'NIE');
+insert into temat_pracy (id_wykladowca, temat, czy_zajety) values (1, 'System obsługi redakcji studenckiego czasopisma internetowego', 'TAK');
+insert into temat_pracy (id_wykladowca, temat, czy_zajety) values (2, 'Projekt i implementacja modułu statystyk w systemie eProto', 'TAK');
+insert into temat_pracy (id_wykladowca, temat, czy_zajety) values (3, 'Repozytorium dokumentów dla redakcji czasopisma naukowego', 'TAK');
+insert into temat_pracy (id_wykladowca, temat, czy_zajety) values (4, 'System wizualizacji i analizy reguł decyzyjnych do zastosowań medycznych', 'TAK');
+insert into temat_pracy (id_wykladowca, temat, czy_zajety) values (5, 'Symulacja i wizualizacja ekosystemu', 'TAK');
+insert into temat_pracy (id_wykladowca, temat, czy_zajety) values (6, 'Uczenie maszynowe z milionami klas (Jak poprawnie wybrać kilka z miliona?)', 'TAK');
+insert into temat_pracy (id_wykladowca, temat, czy_zajety) values (7, 'Wykorzystanie środowiska webowego do rozproszonych obliczeń wielkiej skali', 'TAK');
 
 /* studenci */
 insert into student (id_temat, email, nazwisko, imie, haslo) values (1, 'rafalrutyna00@gmail.com', 'Rutyna', 'Rafał', '1234');
