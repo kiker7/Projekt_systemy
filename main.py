@@ -14,8 +14,19 @@ SECRET_KEY = 'development key'
 SERVER_MAIL = 'rraf@spoko.pl'
 SERVER_PASS = 'Mahdi248'
 
+
 app = Flask(__name__)
 app.config.from_object(__name__)
+
+@app.context_processor
+def message_count_lecturer():
+    cur = g.db.execute('select count(*) from wiadomosc where czy_przeczytane = 0 and id_wykladowca = ?', [session['id']])
+    return dict(count=cur.fetchall()[0])
+
+@app.context_processor
+def message_count_student():
+    cur = g.db.execute('select count(*) from wiadomosc where czy_przeczytane = 0 and id_student = ?', [session['id']])
+    return dict(count_student=cur.fetchall()[0])
 
 
 def connect_db():
@@ -37,6 +48,8 @@ def send_mail(msg, email_to):
     server.login(email_from, email_pass)
     server.sendmail(email_from, email_to, msg)
     server.quit()
+
+
 
 
 @app.before_request
@@ -124,6 +137,8 @@ def subjects():
 @app.route('/add_subject', methods=['POST'])
 def add_subject():
     temat = request.form['temat']
+    if not temat:
+        return subjects()
     g.db.execute('INSERT INTO temat_pracy(id_wykladowca, temat, czy_zajety) VALUES (?, ?, ?)', [1, temat, 0])
     g.db.commit()
     return subjects()
@@ -157,6 +172,11 @@ def profile_student():
             id) + ';')
     dane = [dict(imie=row[0], nazwisko=row[1], email=row[2], temat=row[3]) for row in cur.fetchall()]
     return render_template('student_profile.html', dane=dane)
+
+
+def message_count():
+    cur = g.db.execute('select count(*) from wiadomosc where czy_przeczytane = 0')
+    return cur.fetchall()[0]
 
 
 # wiadomosci wykladowcy

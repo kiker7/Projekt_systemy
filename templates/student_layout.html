@@ -19,7 +19,7 @@
                     <li><a href="{{ url_for('student_subjects') }}">Tematy prac dyplomowych</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="{{ url_for('message_student') }}">Wiadomości <span class="badge">42</span></a></li>
+                    <li><a href="{{ url_for('message_student') }}">Wiadomości <span class="badge">{{ count_student[0] }}</span></a></li>
                     <li><a href="{{ url_for('profile_student') }}">Profil</a></li>
                     <li><a href="{{ url_for('signout') }}">Wyloguj</a></li>
                 </ul>

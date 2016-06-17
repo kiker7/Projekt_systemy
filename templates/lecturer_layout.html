@@ -20,7 +20,7 @@
                     <li><a href="{{ url_for('subjects') }}">Tematy prac dyplomowych</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="{{ url_for('message_lecturer') }}">Wiadomości <span class="badge">42</span></a></li>
+                    <li><a href="{{ url_for('message_lecturer') }}">Wiadomości <span class="badge">{{ count[0] }}</span></a></li>
                     <li><a href="{{ url_for('profile_lecturer') }}">Profil</a></li>
                     <li><a href="{{ url_for('signout') }}">Wyloguj</a></li>
                 </ul>
