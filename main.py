@@ -1,33 +1,52 @@
 import sqlite3
-from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
+from flask import Flask, request, session, g, redirect, url_for,  render_template
 from contextlib import closing
 from time import gmtime, strftime
-from celery import Celery
 import os, smtplib
+import atexit, threading
 
 # Konfiguracja
 
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 DATABASE = os.path.join(PROJECT_ROOT, 'baza_danych', 'baza.db')
-
 DEBUG = True
 SECRET_KEY = 'development key'
-SERVER_MAIL = 'rraf@spoko.pl'
-SERVER_PASS = 'Mahdi248'
+SERVER_MAIL = 'systemy.projekt77@gmail.com'
+SERVER_PASS = 'systemy77'
+POOL_TIME = 600
 
 app = Flask(__name__)
 app.config.from_object(__name__)
-app.config['CELERY_BROKER_URL'] = 'redis://localhost:6379/0'
-app.config['CELERY_RESULT_BACKEND'] = 'redis://localhost:6379/0'
 
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
-celery.conf.update(app.config)
+dataLock = threading.Lock()
+thread = threading.Thread()
+
+
+def create_thread():
+    def interrupt():
+        global thread
+        thread.cancel()
+
+    def init():
+        global thread
+        thread = threading.Timer(POOL_TIME, send_email_check, ())
+        thread.start()
+
+    def send_email_check():
+        global thread
+        with dataLock:
+            send_mail('tresc', 'rafalrutyna00@gmail.com')
+        thread = threading.Timer(POOL_TIME, send_email_check, ())
+        thread.start()
+
+    init()
+    atexit.register(interrupt)
 
 
 @app.context_processor
 def message_count_lecturer():
     session['id_wykladowcy'] = 1;
-    cur = g.db.execute('SELECT count(*) FROM wiadomosc WHERE czy_przeczytane like ? AND id_wykladowca = ?',
+    cur = g.db.execute('SELECT count(*) FROM wiadomosc WHERE czy_przeczytane LIKE ? AND id_wykladowca = ?',
                        ['NIE', session['id_wykladowcy']])
     return dict(count=cur.fetchall()[0])
 
@@ -35,14 +54,10 @@ def message_count_lecturer():
 @app.context_processor
 def message_count_student():
     session['id_studenta'] = 1
-    cur = g.db.execute('SELECT count(*) FROM wiadomosc WHERE czy_przeczytane like ? AND id_student = ?', ['NIE', session['id_studenta']])
+    cur = g.db.execute('SELECT count(*) FROM wiadomosc WHERE czy_przeczytane LIKE ? AND id_student = ?',
+                       ['NIE', session['id_studenta']])
     return dict(count_student=cur.fetchall()[0])
 
-
-@celery.tasks
-def send_notification():
-    while(True):
-        print 'background task'
 
 def connect_db():
     return sqlite3.connect(app.config['DATABASE'])
@@ -58,7 +73,7 @@ def init_db():
 def send_mail(msg, email_to):
     email_from = app.config['SERVER_MAIL']
     email_pass = app.config['SERVER_PASS']
-    server = smtplib.SMTP('smtp.poczta.onet.pl:587')
+    server = smtplib.SMTP('smtp.googlemail.com:587')
     server.starttls()
     server.login(email_from, email_pass)
     server.sendmail(email_from, email_to, msg)
@@ -192,7 +207,8 @@ def profile_student():
 def message_lecturer():
     cur = g.db.execute(
         'SELECT wiadomosc.id_wiadomosci, wiadomosc.temat, student.email, wiadomosc.data, wiadomosc.tekst, wiadomosc.czy_przeczytane FROM wiadomosc INNER JOIN student ON wiadomosc.id_student = student.id_studenta ORDER BY id_wiadomosci DESC;')
-    messages = [dict(id=row[0], temat=row[1], nadawca=row[2], data=row[3], tekst=row[4], przeczytane=row[5]) for row in cur.fetchall()]
+    messages = [dict(id=row[0], temat=row[1], nadawca=row[2], data=row[3], tekst=row[4], przeczytane=row[5]) for row in
+                cur.fetchall()]
     return render_template('lecturer_message.html', messages=messages)
 
 
@@ -203,10 +219,12 @@ def show_message():
         'SELECT wiadomosc.id_wiadomosci, wiadomosc.temat, wiadomosc.data, wiadomosc.tekst, student.email, wiadomosc.czy_przeczytane FROM wiadomosc INNER JOIN student WHERE wiadomosc.id_student = student.id_studenta AND wiadomosc.id_wiadomosci = ' + id_tematu + ' ;')
     g.db.execute('UPDATE wiadomosc SET czy_przeczytane = ? WHERE id_wiadomosci = ?', ['TAK', id_tematu])
     g.db.commit()
-    message = [dict(id=row[0], temat=row[1], data=row[2], tekst=row[3], email=row[4], przeczytane=row[5]) for row in cur.fetchall()]
+    message = [dict(id=row[0], temat=row[1], data=row[2], tekst=row[3], email=row[4], przeczytane=row[5]) for row in
+               cur.fetchall()]
     return render_template('lecturer_show_message.html',
                            message=dict(temat=message[0].get('temat'), email=message[0].get('email'),
-                                        data=message[0].get('data'), tekst=message[0].get('tekst'), przeczytane=message[0].get('przeczytane')))
+                                        data=message[0].get('data'), tekst=message[0].get('tekst'),
+                                        przeczytane=message[0].get('przeczytane')))
 
 
 @app.route('/show_student_message', methods=['POST'])
@@ -216,10 +234,12 @@ def show_student_message():
         'SELECT wiadomosc.id_wiadomosci, wiadomosc.temat, wiadomosc.data, wiadomosc.tekst, student.email, wiadomosc.czy_przeczytane FROM wiadomosc INNER JOIN student WHERE wiadomosc.id_student = student.id_studenta AND wiadomosc.id_wiadomosci = ' + id_tematu + ' ;')
     g.db.execute('UPDATE wiadomosc SET czy_przeczytane = ? WHERE id_wiadomosci = ?', ['TAK', id_tematu])
     g.db.commit()
-    message = [dict(id=row[0], temat=row[1], data=row[2], tekst=row[3], email=row[4], przeczytane=row[5]) for row in cur.fetchall()]
+    message = [dict(id=row[0], temat=row[1], data=row[2], tekst=row[3], email=row[4], przeczytane=row[5]) for row in
+               cur.fetchall()]
     return render_template('student_show_message.html',
                            message=dict(temat=message[0].get('temat'), email=message[0].get('email'),
-                                        data=message[0].get('data'), tekst=message[0].get('tekst'), przeczytane=message[0].get('przeczytane')))
+                                        data=message[0].get('data'), tekst=message[0].get('tekst'),
+                                        przeczytane=message[0].get('przeczytane')))
 
 
 @app.route('/change_term', methods=['POST', "GET"])
@@ -302,7 +322,8 @@ def new_message_student():
 def message_student():
     cur = g.db.execute(
         'SELECT wiadomosc.id_wiadomosci, wiadomosc.temat, student.email, wiadomosc.data, wiadomosc.tekst, wiadomosc.czy_przeczytane FROM wiadomosc INNER JOIN student ON wiadomosc.id_student = student.id_studenta ORDER BY id_wiadomosci DESC ')
-    messages = [dict(id=row[0], temat=row[1], nadawca=row[2], data=row[3], tekst=row[4], przeczytane=row[5]) for row in cur.fetchall()]
+    messages = [dict(id=row[0], temat=row[1], nadawca=row[2], data=row[3], tekst=row[4], przeczytane=row[5]) for row in
+                cur.fetchall()]
     return render_template('student_message.html', messages=messages)
 
 
@@ -343,4 +364,5 @@ def signout():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    create_thread()
+    app.run(debug=True, use_reloader=False)
