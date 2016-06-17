@@ -1,12 +1,10 @@
-import sqlite3
-from flask import Flask, request, session, g, redirect, url_for,  render_template
+import sqlite3, time, atexit, threading, os, smtplib
+from flask import Flask, request, session, g, redirect, url_for, render_template
 from contextlib import closing
+from smtplib import SMTPAuthenticationError
 from time import gmtime, strftime
-import os, smtplib
-import atexit, threading
 
 # Konfiguracja
-
 PROJECT_ROOT = os.path.dirname(os.path.realpath(__file__))
 DATABASE = os.path.join(PROJECT_ROOT, 'baza_danych', 'baza.db')
 DEBUG = True
@@ -22,6 +20,35 @@ dataLock = threading.Lock()
 thread = threading.Thread()
 
 
+def send_email_check_function():
+    conn = sqlite3.connect(DATABASE)
+    cur = conn.cursor()
+    with app.app_context():
+        cur.execute(
+            'SELECT id_etapu, id_student, id_termin FROM student_etap WHERE czy_zakonczony = 0 ORDER BY id_etapu LIMIT 1')
+        dane = [dict(id_etapu=row[0], id_studenta=row[1], id_termin=row[2]) for row in cur.fetchall()]
+        student_number = cur.execute('SELECT count(*) FROM student').fetchone()[0]
+        data = cur.execute('SELECT data FROM termin WHERE id_terminu = ?', [dane[0].get('id_termin')]).fetchone()[0]
+        if data < strftime("%Y-%m-%d %H:%M:%S", gmtime()):
+            temat = cur.execute('SELECT nazwa FROM termin WHERE id_terminu = ?', [dane[0].get('id_termin')]).fetchone()[
+                0]
+            reminder = "Subject: Uplynal termin: " + temat + "\nUprzejmie informujemy o przekroczeniu terminu zawartym w temacie wiadomosci"
+            for i in range(0, student_number):
+                cur.execute('UPDATE student_etap SET czy_zakonczony = ? WHERE id_etapu = ?', [1, i * 14])
+                conn.commit()
+                email = cur.execute('SELECT email FROM student WHERE id_studenta = ?', [dane[0].get('id_studenta')]).fetchone()[0]
+                try:
+                    if not reminder:
+                        print 'chuj w dupe'
+                    else:
+                        send_mail(reminder, email)
+                except SMTPAuthenticationError:
+                    print 'Nie da sie wyslac maila'
+                time.sleep(60)
+        else:
+            pass
+
+
 def create_thread():
     def interrupt():
         global thread
@@ -35,7 +62,7 @@ def create_thread():
     def send_email_check():
         global thread
         with dataLock:
-            send_mail('tresc', 'rafalrutyna00@gmail.com')
+            send_email_check_function()
         thread = threading.Timer(POOL_TIME, send_email_check, ())
         thread.start()
 
@@ -365,4 +392,5 @@ def signout():
 
 if __name__ == '__main__':
     create_thread()
+    # send_email_check_function()
     app.run(debug=True, use_reloader=False)
