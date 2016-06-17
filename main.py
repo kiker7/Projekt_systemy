@@ -20,15 +20,18 @@ app.config.from_object(__name__)
 
 @app.context_processor
 def message_count_lecturer():
+    session['id_wykladowcy'] = 1;
     cur = g.db.execute('SELECT count(*) FROM wiadomosc WHERE czy_przeczytane like ? AND id_wykladowca = ?',
-                       ['NIE', session['id']])
+                       ['NIE', session['id_wykladowcy']])
     return dict(count=cur.fetchall()[0])
 
 
 @app.context_processor
 def message_count_student():
-    cur = g.db.execute('SELECT count(*) FROM wiadomosc WHERE czy_przeczytane like ? AND id_student = ?', ['NIE', session['id']])
+    session['id_studenta'] = 1
+    cur = g.db.execute('SELECT count(*) FROM wiadomosc WHERE czy_przeczytane like ? AND id_student = ?', ['NIE', session['id_studenta']])
     return dict(count_student=cur.fetchall()[0])
+
 
 
 def connect_db():
@@ -81,7 +84,7 @@ def signin_student():
         for i in dane:
             if i.get('email') == email and i.get('password') == password:
                 session['logged_in'] = True
-                session['id'] = i.get('id')
+                session['id_studenta'] = i.get('id')
                 return redirect(url_for('profile_student'))
             else:
                 error = 'Bledne dane logowania'
@@ -101,7 +104,7 @@ def signin_lecturer():
         for i in dane:
             if i.get('email') == email and i.get('password') == password:
                 session['logged_in'] = True
-                session['id'] = i.get('id')
+                session['id_wykladowcy'] = i.get('id')
                 return redirect(url_for('profile_lecturer'))
             else:
                 error = 'Bledne dane logowania'
@@ -122,7 +125,7 @@ def database():
 # strona wyswietlajaca teamty prac dla wykladowcy
 @app.route('/subjects', methods=['GET', 'POST'])
 def subjects():
-    id = session['id']
+    id = session['id_wykladowcy']
     cur = g.db.execute(
         'SELECT temat_pracy.id_tematu, temat_pracy.temat, temat_pracy.czy_zajety FROM temat_pracy WHERE id_wykladowca = ' + str(
             id) + ';')
@@ -155,7 +158,7 @@ def terms():
 # profil wykladowcy
 @app.route('/profile_lecturer')
 def profile_lecturer():
-    id = session['id']
+    id = session['id_wykladowcy']
     cur = g.db.execute(
         'SELECT wykladowca.imie, wykladowca.nazwisko, wykladowca.email FROM wykladowca WHERE id_wykladowcy =' + str(
             id) + ';')
@@ -166,7 +169,7 @@ def profile_lecturer():
 # profil studenta
 @app.route('/profile_student')
 def profile_student():
-    id = session['id']
+    id = session['id_studenta']
     cur = g.db.execute(
         'SELECT student.imie, student.nazwisko, student.email, temat_pracy.temat FROM student INNER JOIN temat_pracy ON student.id_temat = temat_pracy.id_tematu WHERE id_studenta = ' + str(
             id) + ';')
@@ -249,7 +252,7 @@ def send_lecturer():
         result = [dict(id=1)]
     g.db.execute(
         'INSERT INTO wiadomosc(id_wykladowca, id_student, tekst, data, temat, czy_przeczytane) VALUES (?, ?, ?, ?, ?, ?)',
-        [session['id'], result[0].get('id'), tresc, strftime("%Y-%m-%d %H:%M:%S", gmtime()), temat, 'NIE'])
+        [session['id_wykladowcy'], result[0].get('id'), tresc, strftime("%Y-%m-%d %H:%M:%S", gmtime()), temat, 'NIE'])
     g.db.commit()
     return message_lecturer()
 
@@ -259,7 +262,7 @@ def send_student():
     temat = request.form['temat']
     tresc = request.form['tresc']
     email = request.form['email']
-    id = session['id']
+    id = session['id_studenta']
     cur = g.db.execute('SELECT id_wykladowcy FROM wykladowca WHERE email LIKE ?', [email])
     result = [dict(id=row[0]) for row in cur.fetchall()]
     if not result:
@@ -327,11 +330,6 @@ def student_subjects():
 def signout():
     session.pop('logged_in', None)
     return redirect(url_for('index'))
-
-
-# porownywanie daty
-def compare_date():
-    pass
 
 
 if __name__ == '__main__':
