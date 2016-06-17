@@ -8,8 +8,12 @@
             <div class="form-group">
                 <input type="password" name="password" class="form-control" id="loginPassword" placeholder="Hasło">
             </div>
+            {% if error %}
+                <div class="form-group">
+                    <h5 class="bg-danger text-center" style="padding: 5px 0"> {{ error }}</h5>
+                </div>
+            {% endif %}
             <button type="submit" class="btn btn-primary btn-block">Zaloguj</button>
         </form>
-    {% if error %} <p align="center"> {{ error }}</p> {% endif %}
     </div>
 {% endblock %}

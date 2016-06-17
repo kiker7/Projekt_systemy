@@ -1,13 +1,30 @@
 {% extends "student_layout.html" %} {% block main %}
     <div class="container-fluid">
-        <div class="col-md-4"><img src="{{ url_for('static',filename='images/logo.png') }}"></div>
-        {% for d in dane %}
-        <div class="col-md-8">
-            <h4>Imię: {{ d.imie }} </h4>
-            <h4>Nazwisko: {{ d.nazwisko }} </h4>
-            <h4>Email: {{ d.email }} </h4>
-            <h4>Temat pracy: {{ d.temat }} </h4>
+        <div class="col-md-6 col-centered top-margin-30">
+            <div class="col-md-4"><img src="{{ url_for('static',filename='images/avatar.png') }}" class="img-circle"
+                                       style="width: 150px; height: 150px;"></div>
+            {% for d in dane %}
+                <div class="col-md-8">
+                    <table class="table borderless" style="margin-top: -5px">
+                        <tr>
+                            <td width="70px"><strong>Imię:</strong></td>
+                            <td>{{ d.imie }}</td>
+                        </tr>
+                        <tr>
+                            <td width="70px"><strong>Nazwisko:</strong></td>
+                            <td>{{ d.nazwisko }}</td>
+                        </tr>
+                        <tr>
+                            <td width="70px"><strong>Email:</strong></td>
+                            <td>{{ d.email }}</td>
+                        </tr>
+                        <tr>
+                            <td width="70px"><strong>Temat pracy:</strong></td>
+                            <td>{{ d.temat }}</td>
+                        </tr>
+                    </table>
+                </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
 {% endblock %}
