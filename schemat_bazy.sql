@@ -23,7 +23,7 @@ CREATE TABLE temat_pracy(
   id_tematu INTEGER PRIMARY KEY AUTOINCREMENT,
   id_wykladowca INTEGER,
   temat TEXT NOT NULL,
-  czy_zajety INTEGER,
+  czy_zajety TEXT,
   FOREIGN KEY (id_wykladowca) REFERENCES wykladowca(id_wykladowcy)
 );
 
@@ -35,7 +35,7 @@ CREATE TABLE wiadomosc(
   tekst TEXT NOT NULL,
   data TEXT NOT NULL,
   temat TEXT NOT NULL,
-  czy_przeczytane INTEGER,
+  czy_przeczytane TEXT,
   FOREIGN KEY (id_wykladowca) REFERENCES wykladowca(id_wykladowcy),
   FOREIGN KEY (id_student) REFERENCES student(id_studenta)
 );

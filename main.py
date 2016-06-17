@@ -20,14 +20,14 @@ app.config.from_object(__name__)
 
 @app.context_processor
 def message_count_lecturer():
-    cur = g.db.execute('SELECT count(*) FROM wiadomosc WHERE czy_przeczytane = 0 AND id_wykladowca = ?',
-                       [session['id']])
+    cur = g.db.execute('SELECT count(*) FROM wiadomosc WHERE czy_przeczytane like ? AND id_wykladowca = ?',
+                       ['NIE', session['id']])
     return dict(count=cur.fetchall()[0])
 
 
 @app.context_processor
 def message_count_student():
-    cur = g.db.execute('SELECT count(*) FROM wiadomosc WHERE czy_przeczytane = 0 AND id_student = ?', [session['id']])
+    cur = g.db.execute('SELECT count(*) FROM wiadomosc WHERE czy_przeczytane like ? AND id_student = ?', ['NIE', session['id']])
     return dict(count_student=cur.fetchall()[0])
 
 
@@ -139,7 +139,7 @@ def add_subject():
     temat = request.form['temat']
     if not temat:
         return subjects()
-    g.db.execute('INSERT INTO temat_pracy(id_wykladowca, temat, czy_zajety) VALUES (?, ?, ?)', [1, temat, 0])
+    g.db.execute('INSERT INTO temat_pracy(id_wykladowca, temat, czy_zajety) VALUES (?, ?, ?)', [1, temat, 'NIE'])
     g.db.commit()
     return subjects()
 
@@ -188,7 +188,7 @@ def show_message():
     id_tematu = request.form['id_wiadomosci']
     cur = g.db.execute(
         'SELECT wiadomosc.id_wiadomosci, wiadomosc.temat, wiadomosc.data, wiadomosc.tekst, student.email, wiadomosc.czy_przeczytane FROM wiadomosc INNER JOIN student WHERE wiadomosc.id_student = student.id_studenta AND wiadomosc.id_wiadomosci = ' + id_tematu + ' ;')
-    g.db.execute('UPDATE wiadomosc SET czy_przeczytane = ? WHERE id_wiadomosci = ?', [1, id_tematu])
+    g.db.execute('UPDATE wiadomosc SET czy_przeczytane = ? WHERE id_wiadomosci = ?', ['TAK', id_tematu])
     g.db.commit()
     message = [dict(id=row[0], temat=row[1], data=row[2], tekst=row[3], email=row[4], przeczytane=row[5]) for row in cur.fetchall()]
     return render_template('lecturer_show_message.html',
@@ -201,7 +201,7 @@ def show_student_message():
     id_tematu = request.form['id_wiadomosci']
     cur = g.db.execute(
         'SELECT wiadomosc.id_wiadomosci, wiadomosc.temat, wiadomosc.data, wiadomosc.tekst, student.email, wiadomosc.czy_przeczytane FROM wiadomosc INNER JOIN student WHERE wiadomosc.id_student = student.id_studenta AND wiadomosc.id_wiadomosci = ' + id_tematu + ' ;')
-    g.db.execute('UPDATE wiadomosc SET czy_przeczytane = ? WHERE id_wiadomosci = ?', [1, id_tematu])
+    g.db.execute('UPDATE wiadomosc SET czy_przeczytane = ? WHERE id_wiadomosci = ?', ['TAK', id_tematu])
     g.db.commit()
     message = [dict(id=row[0], temat=row[1], data=row[2], tekst=row[3], email=row[4], przeczytane=row[5]) for row in cur.fetchall()]
     return render_template('student_show_message.html',
@@ -249,7 +249,7 @@ def send_lecturer():
         result = [dict(id=1)]
     g.db.execute(
         'INSERT INTO wiadomosc(id_wykladowca, id_student, tekst, data, temat, czy_przeczytane) VALUES (?, ?, ?, ?, ?, ?)',
-        [session['id'], result[0].get('id'), tresc, strftime("%Y-%m-%d %H:%M:%S", gmtime()), temat, 0])
+        [session['id'], result[0].get('id'), tresc, strftime("%Y-%m-%d %H:%M:%S", gmtime()), temat, 'NIE'])
     g.db.commit()
     return message_lecturer()
 
@@ -269,7 +269,7 @@ def send_student():
         result = [dict(id=1)]
     g.db.execute(
         'INSERT INTO wiadomosc(id_wykladowca, id_student, tekst, data, temat, czy_przeczytane) VALUES (?, ?, ?, ?, ?, ?)',
-        [str(id), result[0].get('id'), tresc, strftime("%Y-%m-%d %H:%M:%S", gmtime()), temat, 0])
+        [str(id), result[0].get('id'), tresc, strftime("%Y-%m-%d %H:%M:%S", gmtime()), temat, 'NIE'])
     g.db.commit()
     return message_student()
 
