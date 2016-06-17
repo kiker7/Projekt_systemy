@@ -1,10 +1,12 @@
 {% extends "lecturer_layout.html" %} {% block main %}
     <div class="container-fluid">
         <div class="col-md-4"><img src="{{ url_for('static',filename='images/logo.png') }}"></div>
+        {% for d in dane %}
         <div class="col-md-8">
-            <h4>Imię: </h4>
-            <h4>Nazwisko: </h4>
-            <h4>Email: </h4>
+            <h4>Imię: {{ d.imie }} </h4>
+            <h4>Nazwisko: {{ d.nazwisko }} </h4>
+            <h4>Email: {{ d.email }} </h4>
         </div>
+        {% endfor %}
     </div>
 {% endblock %}

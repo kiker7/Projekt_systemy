@@ -1,6 +1,7 @@
 import sqlite3
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
 from contextlib import closing
+from time import gmtime, strftime
 import os, smtplib
 
 # Konfiguracja
@@ -68,7 +69,7 @@ def signin_student():
             if i.get('email') == email and i.get('password') == password:
                 session['logged_in'] = True
                 session['id'] = i.get('id')
-                return render_template('student_profile.html')
+                return redirect(url_for('profile_student'))
             else:
                 error = 'Bledne dane logowania'
         return render_template('student_signin.html', error=error)
@@ -88,7 +89,7 @@ def signin_lecturer():
             if i.get('email') == email and i.get('password') == password:
                 session['logged_in'] = True
                 session['id'] = i.get('id')
-                return render_template('lecturer_profile.html')
+                return redirect(url_for('profile_lecturer'))
             else:
                 error = 'Bledne dane logowania'
         return render_template('lecturer_signin.html', error=error)
@@ -108,12 +109,14 @@ def database():
 # strona wyswietlajaca teamty prac dla wykladowcy
 @app.route('/subjects', methods=['GET', 'POST'])
 def subjects():
-    id = "1"
+    id = session['id']
     cur = g.db.execute(
-        'SELECT temat_pracy.id_tematu, temat_pracy.temat, temat_pracy.czy_zajety FROM temat_pracy WHERE id_wykladowca = ' + id + ';')
+        'SELECT temat_pracy.id_tematu, temat_pracy.temat, temat_pracy.czy_zajety FROM temat_pracy WHERE id_wykladowca = ' + str(
+            id) + ';')
     my_subjects = [dict(id=row[0], temat=row[1], czy_zajety=row[2]) for row in cur.fetchall()]
     cur = g.db.execute(
-        'SELECT temat_pracy.id_tematu, temat_pracy.temat, temat_pracy.czy_zajety FROM temat_pracy WHERE id_wykladowca != ' + id + ';')
+        'SELECT temat_pracy.id_tematu, temat_pracy.temat, temat_pracy.czy_zajety FROM temat_pracy WHERE id_wykladowca != ' + str(
+            id) + ';')
     all_subjects = [dict(id=row[0], temat=row[1], czy_zajety=row[2]) for row in cur.fetchall()]
     return render_template('lecturer_subjects.html', my_subjects=my_subjects, all_subjects=all_subjects)
 
@@ -129,27 +132,31 @@ def add_subject():
 # strona wyswietlajaca terminy
 @app.route('/terms', methods=['GET'])
 def terms():
-    cur = g.db.execute('SELECT nazwa, data FROM termin')
-    terms = [dict(nazwa=row[0], data=row[1]) for row in cur.fetchall()]
+    cur = g.db.execute('SELECT nazwa, data, id_terminu FROM termin')
+    terms = [dict(nazwa=row[0], data=row[1], id=row[2]) for row in cur.fetchall()]
     return render_template('lecturer_terms.html', terms=terms)
-
-
-# funkcja dodajaca termin do bazy
-@app.route('/add_term', methods=['POST'])
-def add_term():
-    return redirect(url_for('terms'))
 
 
 # profil wykladowcy
 @app.route('/profile_lecturer')
 def profile_lecturer():
-    return render_template('lecturer_profile.html')
+    id = session['id']
+    cur = g.db.execute(
+        'SELECT wykladowca.imie, wykladowca.nazwisko, wykladowca.email FROM wykladowca WHERE id_wykladowcy =' + str(
+            id) + ';')
+    dane = [dict(imie=row[0], nazwisko=row[1], email=row[2]) for row in cur.fetchall()]
+    return render_template('lecturer_profile.html', dane=dane)
 
 
 # profil studenta
 @app.route('/profile_student')
 def profile_student():
-    return render_template('student_profile.html')
+    id = session['id']
+    cur = g.db.execute(
+        'SELECT student.imie, student.nazwisko, student.email, temat_pracy.temat FROM student INNER JOIN temat_pracy ON student.id_temat = temat_pracy.id_tematu WHERE id_studenta = ' + str(
+            id) + ';')
+    dane = [dict(imie=row[0], nazwisko=row[1], email=row[2], temat=row[3]) for row in cur.fetchall()]
+    return render_template('student_profile.html', dane=dane)
 
 
 # wiadomosci wykladowcy
@@ -183,9 +190,17 @@ def show_student_message():
                                         data=message[0].get('data'), tekst=message[0].get('tekst')))
 
 
-@app.route('/change_term')
+@app.route('/change_term', methods=['POST', "GET"])
 def change_term():
-    # zapisc zmieniony termin w bazie
+    datetime = list(str(request.form['datetime']))
+    if not datetime:
+        return terms()
+    datetime.append(':00')
+    id_terminu = request.form['id']
+    datetime[10] = ' '
+    date = ''.join(datetime)
+    g.db.execute('UPDATE termin SET data=?  WHERE id_terminu=?', [date, id_terminu])
+    g.db.commit()
     return terms()
 
 
@@ -201,14 +216,21 @@ def reply_student():
     return render_template('student_reply.html', email=dict(email=nadawca))
 
 
-@app.route('/send_lecturer', methods=['POST'])
+@app.route('/send_lecturer', methods=['POST', 'GET'])
 def send_lecturer():
     temat = request.form['temat']
     tresc = request.form['tresc']
     email = request.form['email']
+    cur = g.db.execute('SELECT id_studenta FROM student WHERE email LIKE ?', [email])
+    result = [dict(id=row[0]) for row in cur.fetchall()]
+    if not result:
+        cur = g.db.execute('SELECT id_wykladowcy FROM wykladowca WHERE email LIKE ?', [email])
+        result = [dict(id=row[0]) for row in cur.fetchall()]
+    if not result:
+        result = [dict(id=1)]
     g.db.execute(
         'INSERT INTO wiadomosc(id_wykladowca, id_student, tekst, data, temat, czy_przeczytane) VALUES (?, ?, ?, ?, ?, ?)',
-        [1, 1, tresc, "2016-06-16", temat, 0])
+        [session['id'], result[0].get('id'), tresc, strftime("%Y-%m-%d %H:%M:%S", gmtime()), temat, 0])
     g.db.commit()
     return message_lecturer()
 
@@ -218,9 +240,17 @@ def send_student():
     temat = request.form['temat']
     tresc = request.form['tresc']
     email = request.form['email']
+    id = session['id']
+    cur = g.db.execute('SELECT id_wykladowcy FROM wykladowca WHERE email LIKE ?', [email])
+    result = [dict(id=row[0]) for row in cur.fetchall()]
+    if not result:
+        cur = g.db.execute('SELECT id_studenta FROM student WHERE email LIKE ?', [email])
+        result = [dict(id=row[0]) for row in cur.fetchall()]
+    if not result:
+        result = [dict(id=1)]
     g.db.execute(
         'INSERT INTO wiadomosc(id_wykladowca, id_student, tekst, data, temat, czy_przeczytane) VALUES (?, ?, ?, ?, ?, ?)',
-        [1, 1, tresc, "2016-06-16", temat, 0])
+        [str(id), result[0].get('id'), tresc, strftime("%Y-%m-%d %H:%M:%S", gmtime()), temat, 0])
     g.db.commit()
     return message_student()
 

@@ -13,10 +13,11 @@
             <tbody>
             {% for term in terms %}
                 <tr>
-                    <form action='change_term'>
+                    <form action='change_term' method="post">
                         <td><input type="text" disabled="disabled" value="{{ term.nazwa }}"/></td>
                         <td width="200px"><input type="text" disabled="disabled" value="{{ term.data }}"/></td>
-                        <td width="200px"><input type="datetime-local"/></td>
+                        <td width="200px"><input name="datetime" type="datetime-local"/></td>
+                        <input type="hidden" name="id" value={{ term.id }}>
                         <td width="100px"><button type="submit" class="btn btn-default">Zmień</button></td>
                     </form>
                 </tr>
