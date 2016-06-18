@@ -11,7 +11,7 @@ DEBUG = True
 SECRET_KEY = 'development key'
 SERVER_MAIL = 'systemy.projekt77@gmail.com'
 SERVER_PASS = 'systemy77'
-POOL_TIME = 600
+POOL_TIME = 60
 
 app = Flask(__name__)
 app.config.from_object(__name__)
@@ -36,17 +36,17 @@ def send_email_check_function():
             for i in range(0, student_number):
                 cur.execute('UPDATE student_etap SET czy_zakonczony = ? WHERE id_etapu = ?', [1, i * 14])
                 conn.commit()
-                email = cur.execute('SELECT email FROM student WHERE id_studenta = ?', [dane[0].get('id_studenta')]).fetchone()[0]
+                email = \
+                cur.execute('SELECT email FROM student WHERE id_studenta = ?', [dane[0].get('id_studenta')]).fetchone()[
+                    0]
                 try:
-                    if not reminder:
-                        print 'chuj w dupe'
-                    else:
-                        send_mail(reminder, email)
+                    send_mail(reminder, email)
                 except SMTPAuthenticationError:
                     print 'Nie da sie wyslac maila'
                 time.sleep(60)
         else:
-            pass
+            print 'LOG-INFO: Nie przekroczono terminu'
+
 
 
 def create_thread():
@@ -361,13 +361,13 @@ def work_progress():
     closest_term = [dict(number=row[0] + 1) for row in cur.fetchall()]
     cur = g.db.execute(
         'SELECT termin.id_terminu, termin.nazwa, termin.data FROM termin INNER JOIN student_etap ON termin.id_terminu = student_etap.id_termin WHERE student_etap.czy_zakonczony = 0 AND termin.id_terminu = ' + str(
-            closest_term[0].get('number')) + ' AND student_etap.id_student = 1  ;')
+            closest_term[0].get('number')) + ' AND student_etap.id_student =' + str(session['id_studenta']) + ';')
     closest_term_name = [dict(id=row[0], nazwa=row[1], data=row[2]) for row in cur.fetchall()]
     cur = g.db.execute(
-        'SELECT termin.id_terminu, termin.nazwa, termin.data FROM termin INNER JOIN student_etap ON termin.id_terminu = student_etap.id_termin WHERE student_etap.czy_zakonczony = 0 AND student_etap.id_student = 1;')
+        'SELECT termin.id_terminu, termin.nazwa, termin.data FROM termin INNER JOIN student_etap ON termin.id_terminu = student_etap.id_termin WHERE student_etap.czy_zakonczony = 0 AND student_etap.id_student = '+ str(session['id_studenta']) + ';')
     next_terms = [dict(id=row[0], nazwa=row[1], data=row[2]) for row in cur.fetchall()]
     cur = g.db.execute(
-        'SELECT termin.id_terminu, termin.nazwa, termin.data FROM termin INNER JOIN student_etap ON termin.id_terminu = student_etap.id_termin WHERE student_etap.czy_zakonczony = 1 AND student_etap.id_student = 1;')
+        'SELECT termin.id_terminu, termin.nazwa, termin.data FROM termin INNER JOIN student_etap ON termin.id_terminu = student_etap.id_termin WHERE student_etap.czy_zakonczony = 1 AND student_etap.id_student = '+ str(session['id_studenta']) + ';')
     done_terms = [dict(id=row[0], nazwa=row[1], data=row[2]) for row in cur.fetchall()]
     return render_template('student_control.html', closest_term_name=closest_term_name, next_terms=next_terms,
                            done_terms=done_terms)
